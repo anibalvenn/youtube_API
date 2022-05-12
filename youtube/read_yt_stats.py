@@ -1,8 +1,12 @@
 import json
 from matplotlib.pyplot import title
 import pandas as pd
+from get_comment_list import Comment_List
 
-file = 'o_primo_rico.json'
+API_KEY = 'AIzaSyD8EloR5vSuzGeN8E9AqxVfyfShYMgNsGY'
+
+
+file = 'C:\\Users\\Dell\\Documents\\Python Scripts\\venv\\05\\youtube_API\\youtube\\o_primo_rico.json'
 data = None
 with open(file, 'r') as f:
   data = json.load(f)
@@ -26,8 +30,10 @@ for vid in sorted_vids:
   title = vid[1]['title']
   likes = vid[1]['likeCount']
   views = vid[1]['viewCount']
-  comments = vid[1]['commentCount']
-  stats.append([title, views, likes, comments])
+  commentCount = vid[1]['commentCount']
+  comment_list = Comment_List(API_KEY, video_id)
+  top_level_comments = comment_list.video_comments()
+  stats.append([title, views, likes, commentCount, top_level_comments])
 
-df = pd.DataFrame(stats, columns=['title', 'views', 'likes', 'comments'])
+df = pd.DataFrame(stats, columns=['title', 'views', 'likes', 'commentCount'])
 print(df.head(10))
