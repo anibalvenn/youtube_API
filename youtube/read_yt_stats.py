@@ -33,7 +33,7 @@ for vid in sorted_vids:
   commentCount = vid[1]['commentCount']
   comment_list = Comment_List(API_KEY, video_id)
   top_level_comments = comment_list.video_comments()
-  stats.append([title, views, likes, commentCount, top_level_comments])
+  stats.append([title, views, likes, commentCount])
 
 df = pd.DataFrame(stats, columns=['title', 'views', 'likes', 'commentCount'])
 print(df.head(10))
