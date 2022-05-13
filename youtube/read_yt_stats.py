@@ -1,7 +1,7 @@
 import json
 from matplotlib.pyplot import title
 import pandas as pd
-from get_comment_list import Comment_List
+from get_comment_dict import Comment_Dataframe
 
 API_KEY = 'AIzaSyD8EloR5vSuzGeN8E9AqxVfyfShYMgNsGY'
 
@@ -31,9 +31,10 @@ for vid in sorted_vids:
   likes = vid[1]['likeCount']
   views = vid[1]['viewCount']
   commentCount = vid[1]['commentCount']
-  comment_list = Comment_List(API_KEY, video_id)
-  top_level_comments = comment_list.video_comments()
-  stats.append([title, views, likes, commentCount])
+  comment_stats = Comment_Dataframe(API_KEY, video_id)
+  df_comments = comment_stats.video_comments()#cada video gera um DF de comments
+  stats.append([video_id, title, views, likes, commentCount])
 
-df = pd.DataFrame(stats, columns=['title', 'views', 'likes', 'commentCount'])
-print(df.head(10))
+# cada linha do df_videos esta relacionada a um df_comments
+df_videos = pd.DataFrame(stats, columns=['videoId','title', 'views', 'likes', 'commentCount'])
+print(df_videos.head(10))
