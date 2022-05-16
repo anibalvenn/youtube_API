@@ -1,6 +1,22 @@
 from googleapiclient.discovery import build
 import pandas as pd
 
+def add_to_comments(reply, comments)-> list:
+	reply_id = reply['id'] 
+	text_reply = reply['snippet']['textDisplay']
+	likes_reply = reply['snippet']['likeCount']
+	author_id_reply = reply['snippet']['authorChannelId']['value'] 
+	video_id__reply = reply['snippet']['videoId']
+	try:
+		parent_id__reply = reply['snippet']['parentId']
+	except:
+		parent_id__reply ='0'
+	date_reply = reply['snippet']['publishedAt']
+	
+	comments.append([reply_id, text_reply,likes_reply, author_id_reply,video_id__reply, parent_id__reply,date_reply])
+
+	return comments
+
 class Comment_Dataframe:
 	def __init__(self,api_key,video_id):
 		self.api_key = api_key
@@ -8,8 +24,7 @@ class Comment_Dataframe:
 		self.comment_list = self.video_comments()
 
 
-
-
+	
 	def video_comments(self) -> pd.DataFrame:
 		# empty list for storing reply
 		comments = []
@@ -26,36 +41,14 @@ class Comment_Dataframe:
 
 		# iterate video response
 		while video_response:
+			for d in video_response['items']:
+				item = d['snippet']['topLevelComment']				
+				comments = add_to_comments(item, comments)
 
-			
-			# extracting required info
-			# from each result object
-			for item in video_response['items']:
-				
-				# Extracting comments
-				comment_id = item['snippet']['topLevelComment']['id'] 
-				text_comment = item['snippet']['topLevelComment']['snippet']['textDisplay']
-				likes_comment = item['snippet']['topLevelComment']['snippet']['likeCount']
-				author_id_comment = item['snippet']['topLevelComment']['snippet']['authorChannelId']['value'] 
-				video_id__comment = item['snippet']['topLevelComment']['snippet']['videoId']
-				parent_id__comment = '0'
-				date_comment = item['snippet']['topLevelComment']['snippet']['publishedAt']
-
-				comments.append([comment_id, text_comment,likes_comment, author_id_comment,video_id__comment,parent_id__comment,date_comment])
-
-				if 'replies' in item:
-					replies_list = item['replies']['comments']
+				if 'replies' in d:
+					replies_list = d['replies']['comments']
 					for reply in replies_list:
-						reply_id = reply['id'] 
-						text_reply = reply['snippet']['textDisplay']
-						likes_reply = reply['snippet']['likeCount']
-						author_id_reply = reply['snippet']['authorChannelId']['value'] 
-						video_id__reply = reply['snippet']['videoId']
-						parent_id__reply = reply['snippet']['parentId']
-						date_reply = reply['snippet']['publishedAt']
-						
-						comments.append([reply_id, text_reply,likes_reply, author_id_reply,video_id__reply, parent_id__reply,date_reply])
-
+						comments = add_to_comments(reply, comments)
 
 			# Again repeat
 			if 'nextPageToken' in video_response:
