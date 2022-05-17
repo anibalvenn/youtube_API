@@ -1,15 +1,22 @@
-import json
+from json import load
 from matplotlib.pyplot import title
 import pandas as pd
 from get_comment_dict import Comment_Dataframe
 
+
+"""
+pega um arquivo .json local (nesse caso, 'o_primo_rico.json'), passa por todos os vídeos elencados
+nesse arquivo, e gera um dataframe com as informações 'videoId','title', 'views', 'likes', 'commentCount' de cada vídeo
+params:
+  arquivo .json local, que contém os dados de um canal específico no youtube
+returns: 
+  um dataframe com as informações 'videoId','title', 'views', 'likes', 'commentCount' de cada vídeo
+"""
 API_KEY = 'AIzaSyD8EloR5vSuzGeN8E9AqxVfyfShYMgNsGY'
-
-
 file = 'C:\\Users\\Dell\\Documents\\Python Scripts\\venv\\05\\youtube_API\\youtube\\o_primo_rico.json'
 data = None
 with open(file, 'r') as f:
-  data = json.load(f)
+  data = load(f)
 
 channel_id, stats = data.popitem()
 print(channel_id)

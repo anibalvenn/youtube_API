@@ -1,5 +1,5 @@
-import requests
-import json
+from requests import get
+from json import loads, dump
 from tqdm import tqdm
 
 class YTstats:
@@ -14,11 +14,13 @@ class YTstats:
     """
     Pega as estatísticas do canal e preenche
     videoCount, subscriberCount, viewCount, etc.    
+    returns:
+      dict: data, contendo as estatísticas do canal, organizadas por videoId
     """
     url = f'https://www.googleapis.com/youtube/v3/channels?part=statistics&id={self.channel_id}&key={self.api_key}'
     print(url)
-    json_url = requests.get(url)
-    data = json.loads(json_url.text)
+    json_url = get(url)
+    data = loads(json_url.text)
     print(data)
     try:
       data = data["items"][0]["statistics"]
@@ -42,9 +44,14 @@ class YTstats:
     return channel_videos
 
   def _get_single_video_data(self, video_id, part):
+    """
+    agrega os dados de um unico video, retirados a API do youtube
+    returns:
+      dict: data - os dados de um unico video, chaveados pelo id
+    """
     url = f'https://www.googleapis.com/youtube/v3/videos?part={part}&id={video_id}&key={self.api_key}'
-    json_url = requests.get(url)
-    data= json.loads(json_url.text)
+    json_url = get(url)
+    data= loads(json_url.text)
     try:
       data = data['items'][0][part]
     except:
@@ -54,6 +61,13 @@ class YTstats:
     return data
 
   def _get_channel_videos(self, limit=None):  
+    """
+    produz um dicionário com todos os videos do canal, caso não seja estabelecido um limite
+    params:
+      int: limit - o limite de videos do canal a serem acrescido no dicionario que sera retornado
+    returns:
+      dict: vid
+    """
     url = f"https://www.googleapis.com/youtube/v3/search?key={self.api_key}&channelId={self.channel_id}&part=id&order=date"
 
     print(url)
@@ -72,8 +86,14 @@ class YTstats:
     return vid
 
   def _get_channel_videos_per_page(self, url):
-    json_url = requests.get(url)
-    data = json.loads(json_url.text)
+    """
+    pega todos os videos de uma mesma pagina na APi do youtube
+    returns:
+      str: nextPageToken
+      dict: channel_videos
+    """
+    json_url = get(url)
+    data = loads(json_url.text)
     channel_videos = dict()
     if 'items' not in data:
       return channel_videos, None
@@ -92,6 +112,10 @@ class YTstats:
     return channel_videos, nextPageToken
 
   def dump(self):
+    """
+    cria o arquivo .json com as estatísticas do canal do youtube de onde os dados foram retirados,
+    no mesmo diretório onde este arquivo estiver situado
+    """
     if self.channel_statistics is None or  self.video_data is None:
       print("data is None")
       return
@@ -103,5 +127,5 @@ class YTstats:
     channel_title = channel_title.replace(" ", "_").lower()
     file_name = channel_title + ".json"
     with open(file_name, 'w') as f:
-      json.dump(fused_data, f, indent=4)
+      dump(fused_data, f, indent=4)
     print("file dumped")
